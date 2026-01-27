@@ -1,6 +1,6 @@
 public class Dot {
-    int x;
-    int y;
+    private int x;
+    private int y;
 
     public Dot(int x, int y) {
         this.x = x;
@@ -25,5 +25,20 @@ public class Dot {
 
     public String toString() {
         return "{" + x + ";" + y + "}";
+    }
+}
+
+class Point3D extends Dot {
+
+    private final int z;
+
+    public Point3D(int x, int y, int z) {
+        super(x, y);
+        this.z = z;
+    }
+
+    @Override
+    public String toString() {
+        return "{" + getX() + ";" + getY() + ";" + z + "}";
     }
 }
