@@ -47,3 +47,28 @@ public class PolyLine {
         return "Линия " + dots;
     }
 }
+
+class ClosedPolyLine extends PolyLine{
+
+    public ClosedPolyLine(Dot... dotsArray) {
+        super(dotsArray);
+    }
+
+    @Override
+    public Line[] getLines() {
+
+        if (dots.size() < 2) {
+            return new Line[0];
+        }
+
+        Line[] lines = new Line[dots.size()];
+
+        for (int i = 0; i < dots.size()-1; i++) {
+            lines[i] = new Line(dots.get(i), dots.get(i + 1));
+        }
+
+        lines[dots.size()-1] = new Line(dots.get(dots.size()-1), dots.get(0));
+
+        return lines;
+    }
+}
