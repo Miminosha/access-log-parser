@@ -6,11 +6,19 @@ public class Start {
         Dot dot4 = new Dot(1, 7);
 
         PolyLine polyLine = new PolyLine(dot1, dot2, dot3, dot4);
-        double lenthOfPolyline = polyLine.getLength();
-        System.out.println(lenthOfPolyline);
+        ClosedPolyLine closedPolyLine = new ClosedPolyLine(dot1, dot2, dot3, dot4);
 
-        ClosedPolyLine closedPolyLine = new ClosedPolyLine(dot1,dot2,dot3,dot4);
-        double lengthOfClosedPolyLine = closedPolyLine.getLength();
-        System.out.println(lengthOfClosedPolyLine);
+        Measurable[] lines = {polyLine, closedPolyLine};
+
+        double result = sumOfLength(lines);
+        System.out.println(result);
+    }
+
+    public static double sumOfLength(Measurable[] lines) {
+        double sum = 0;
+        for (int i = 0; i < lines.length; i++) {
+            sum += lines[i].getLength();
+        }
+        return sum;
     }
 }

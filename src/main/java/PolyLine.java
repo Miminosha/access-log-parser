@@ -1,6 +1,6 @@
 import java.util.ArrayList;
 
-public class PolyLine {
+public class PolyLine implements Measurable {
     ArrayList<Dot> dots;
 
     public PolyLine() {
@@ -48,7 +48,7 @@ public class PolyLine {
     }
 }
 
-class ClosedPolyLine extends PolyLine{
+class ClosedPolyLine extends PolyLine {
 
     public ClosedPolyLine(Dot... dotsArray) {
         super(dotsArray);
@@ -63,11 +63,11 @@ class ClosedPolyLine extends PolyLine{
 
         Line[] lines = new Line[dots.size()];
 
-        for (int i = 0; i < dots.size()-1; i++) {
+        for (int i = 0; i < dots.size() - 1; i++) {
             lines[i] = new Line(dots.get(i), dots.get(i + 1));
         }
 
-        lines[dots.size()-1] = new Line(dots.get(dots.size()-1), dots.get(0));
+        lines[dots.size() - 1] = new Line(dots.get(dots.size() - 1), dots.get(0));
 
         return lines;
     }
