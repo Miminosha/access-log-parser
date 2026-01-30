@@ -1,10 +1,23 @@
 public class Main {
     public static void main(String[] args) {
-        Sparrow sparrow = new Sparrow();
-        Cuckoo cuckoo = new Cuckoo();
-        Parrot parrot = new Parrot("привет");
-        sparrow.sing();
-        cuckoo.sing();
-        parrot.sing();
+
+        Bird[] birds = {
+                new Sparrow(),
+                new Cuckoo(),
+                new Sparrow(),
+                new Parrot("Кеша"),
+                new Cuckoo(),
+                new Parrot("хороший")
+        };
+
+        sumOfSongs(birds);
+
     }
+
+    public static void sumOfSongs(Bird[] birds) {
+        for (Bird bird : birds) {
+            bird.sing();
+        }
+    }
+
 }
