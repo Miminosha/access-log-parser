@@ -12,9 +12,6 @@ public class Main {
             String path = scanner.nextLine();
             File file = new File(path);
 
-            boolean fileExists = file.exists();
-            boolean isDirectory = file.isDirectory();
-
             if (!file.exists()) {
                 System.out.println("Файл не существует");
                 continue;
