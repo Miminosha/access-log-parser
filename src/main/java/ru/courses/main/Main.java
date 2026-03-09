@@ -64,6 +64,17 @@ public class Main {
                 System.out.println("Средний трафик в час: "
                         + statistics.getTrafficRate());
 
+                System.out.println("Существующие страницы:");
+                for (String page : statistics.getListOfExistingPages()) {
+                    System.out.println(page);
+                }
+
+                System.out.println("Статистика ОС:");
+                for (String os : statistics.getOsStatistics().keySet()) {
+                    System.out.println(os + ": " + statistics.getOsStatistics().get(os));
+                }
+
+
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
