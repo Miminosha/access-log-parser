@@ -64,6 +64,12 @@ public class Main {
                 System.out.println("Средний трафик в час: "
                         + statistics.getTrafficRate());
 
+                System.out.println("Несуществующие страницы:");
+                for (String page : statistics.getListOfUnexistingPages()) {
+                    System.out.println(page);
+                }
+
+ /*
                 System.out.println("Существующие страницы:");
                 for (String page : statistics.getListOfExistingPages()) {
                     System.out.println(page);
@@ -73,7 +79,12 @@ public class Main {
                 for (String os : statistics.getOsStatistics().keySet()) {
                     System.out.println(os + ": " + statistics.getOsStatistics().get(os));
                 }
+  */
 
+                System.out.println("Статистика браузеров:");
+                for (String browser : statistics.getBrowserStatistics().keySet()) {
+                    System.out.println(browser + ": " + statistics.getBrowserStatistics().get(browser));
+                }
 
             } catch (Exception ex) {
                 ex.printStackTrace();

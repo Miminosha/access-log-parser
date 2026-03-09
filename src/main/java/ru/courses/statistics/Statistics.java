@@ -15,12 +15,16 @@ public class Statistics {
     private LocalDateTime minTime;
     private LocalDateTime maxTime;
     private final Set<String> existingPages;
+    private final Set<String> unexistingPages;
     private final Map<String, Integer> osStatistics;
+    private final Map<String, Integer> browserStatistics;
 
     public Statistics() {
         totalTraffic = 0;
         existingPages = new HashSet<>();
+        unexistingPages = new HashSet<>();
         osStatistics = new HashMap<>();
+        browserStatistics = new HashMap<>();
     }
 
     public void addEntry(LogEntry entry) {
@@ -35,6 +39,14 @@ public class Statistics {
                 path = path.substring(0, index);
             }
             existingPages.add(path);
+        } else if (entry.getResponseCode() == 404) {
+            String path = entry.getPath();
+            int index = path.indexOf("?");
+
+            if (index != -1) {
+                path = path.substring(0, index);
+            }
+            unexistingPages.add(path);
         }
 
         LocalDateTime time = entry.getTime();
@@ -53,6 +65,14 @@ public class Statistics {
             osStatistics.put(os, 1);
         } else {
             osStatistics.put(os, osStatistics.get(os) + 1);
+        }
+
+        String browser = entry.getUserAgent().getBrowser();
+
+        if (!browserStatistics.containsKey(browser)) {
+            browserStatistics.put(browser, 1);
+        } else {
+            browserStatistics.put(browser, browserStatistics.get(browser) + 1);
         }
     }
 
@@ -75,6 +95,10 @@ public class Statistics {
         return existingPages;
     }
 
+    public Set<String> getListOfUnexistingPages(){
+        return unexistingPages;
+    }
+
     public Map<String, Double> getOsStatistics() {
         HashMap<String, Double> result = new HashMap<>();
 
@@ -88,6 +112,23 @@ public class Statistics {
             int count = osStatistics.get(os);
             double share = (double) count / total;
             result.put(os, share);
+        }
+        return result;
+    }
+
+    public Map<String, Double> getBrowserStatistics() {
+        HashMap<String, Double> result = new HashMap<>();
+
+        int total = 0;
+
+        for (int count : browserStatistics.values()) {
+            total += count;
+        }
+
+        for (String browser : browserStatistics.keySet()) {
+            int count = browserStatistics.get(browser);
+            double share = (double) count / total;
+            result.put(browser, share);
         }
         return result;
     }
