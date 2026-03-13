@@ -22,6 +22,9 @@ public class Statistics {
     private int realVisits;
     private int errorRequests;
     private final HashSet<String> userIps;
+    private final Map<LocalDateTime, Integer> visitsPerSecond;
+    private final Set<String> refererDomains;
+    private final Map<String, Integer> userVisits;
 
     public Statistics() {
         totalTraffic = 0;
@@ -32,6 +35,9 @@ public class Statistics {
         realVisits = 0;
         errorRequests = 0;
         userIps = new HashSet<>();
+        visitsPerSecond = new HashMap<>();
+        refererDomains = new HashSet<>();
+        userVisits = new HashMap<>();
     }
 
     public void addEntry(LogEntry entry) {
@@ -78,6 +84,11 @@ public class Statistics {
         if (!isBot) {
             realVisits++;
             userIps.add(entry.getIp());
+
+            LocalDateTime second = entry.getTime().withNano(0);
+            visitsPerSecond.merge(second, 1, Integer::sum);
+
+            userVisits.merge(entry.getIp(), 1, Integer::sum);
         }
 
         // ошибочные запросы
@@ -85,6 +96,16 @@ public class Statistics {
 
         if (code >= 400 && code < 600) {
             errorRequests++;
+        }
+
+        String referer = entry.getReferer();
+
+        if (referer != null && !referer.equals("-")) {
+            try {
+                String domain = new java.net.URL(referer).getHost();
+                refererDomains.add(domain);
+            } catch (Exception ignored) {
+            }
         }
     }
 
@@ -112,8 +133,6 @@ public class Statistics {
     }
 
     public Map<String, Double> getOsStatistics() {
-        HashMap<String, Double> result = new HashMap<>();
-
         int total = osStatistics.values()
                 .stream()
                 .mapToInt(Integer::intValue)
@@ -126,8 +145,6 @@ public class Statistics {
     }
 
     public Map<String, Double> getBrowserStatistics() {
-        HashMap<String, Double> result = new HashMap<>();
-
         int total = browserStatistics.values()
                 .stream()
                 .mapToInt(Integer::intValue)
@@ -161,5 +178,23 @@ public class Statistics {
             return 0;
         }
         return (double) realVisits / userIps.size();
+    }
+
+    public int getPeakVisitsPerSecond() {
+        return visitsPerSecond.values()
+                .stream()
+                .max(Integer::compare)
+                .orElse(0);
+    }
+
+    public Set<String> getRefererDomains() {
+        return refererDomains;
+    }
+
+    public int getMaxVisitsPerUser() {
+        return userVisits.values()
+                .stream()
+                .max(Integer::compare)
+                .orElse(0);
     }
 }

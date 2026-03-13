@@ -60,11 +60,11 @@ public class Main {
 
                     }
                 }
+                /*
 
                 System.out.println("Средний трафик в час: "
                         + statistics.getTrafficRate());
 
-                /*
                 System.out.println("Несуществующие страницы:");
                 for (String page : statistics.getListOfUnexistingPages()) {
                     System.out.println(page);
@@ -84,11 +84,23 @@ public class Main {
                 for (String browser : statistics.getBrowserStatistics().keySet()) {
                     System.out.println(browser + ": " + statistics.getBrowserStatistics().get(browser));
                 }
-                 */
 
                 System.out.println("Среднее количество посещений в час: " + statistics.getAverageVisitsPerHour());
                 System.out.println("Ошибок в час: " + statistics.getAverageErrorsPerHour());
                 System.out.println("Средняя посещаемость пользователя: " + statistics.getAverageVisitsPerUser());
+*/
+
+                System.out.println("Пиковая посещаемость (в секунду): "
+                        + statistics.getPeakVisitsPerSecond());
+
+
+                System.out.println("Сайты-источники (referer):");
+                statistics.getRefererDomains()
+                        .forEach(System.out::println);
+
+
+                System.out.println("Максимальное число посещений одним пользователем: "
+                        + statistics.getMaxVisitsPerUser());
 
             } catch (Exception ex) {
                 ex.printStackTrace();
