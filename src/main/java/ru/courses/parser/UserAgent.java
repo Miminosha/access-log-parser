@@ -4,8 +4,16 @@ public class UserAgent {
 
     private final String os;
     private final String browser;
+    private final boolean isBot;
 
     public UserAgent(String userAgent) {
+
+        if (userAgent == null || userAgent.equals("-")) {
+            os = "Other";
+            browser = "Other";
+            isBot = false;
+            return;
+        }
 
         String lower = userAgent.toLowerCase();
 
@@ -30,6 +38,8 @@ public class UserAgent {
         } else {
             browser = "Other";
         }
+
+        isBot = lower.contains("bot");
     }
 
     public String getOs() {
@@ -38,5 +48,9 @@ public class UserAgent {
 
     public String getBrowser() {
         return browser;
+    }
+
+    public boolean isBot() {
+        return isBot;
     }
 }

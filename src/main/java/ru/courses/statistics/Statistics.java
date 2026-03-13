@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class Statistics {
 
@@ -18,6 +19,9 @@ public class Statistics {
     private final Set<String> unexistingPages;
     private final Map<String, Integer> osStatistics;
     private final Map<String, Integer> browserStatistics;
+    private int realVisits;
+    private int errorRequests;
+    private final HashSet<String> userIps;
 
     public Statistics() {
         totalTraffic = 0;
@@ -25,6 +29,9 @@ public class Statistics {
         unexistingPages = new HashSet<>();
         osStatistics = new HashMap<>();
         browserStatistics = new HashMap<>();
+        realVisits = 0;
+        errorRequests = 0;
+        userIps = new HashSet<>();
     }
 
     public void addEntry(LogEntry entry) {
@@ -32,21 +39,11 @@ public class Statistics {
         totalTraffic += entry.getDataSize();
 
         if (entry.getResponseCode() == 200) {
-            String path = entry.getPath();
-            int index = path.indexOf("?");
+            existingPages.add(entry.getPath());
+        }
 
-            if (index != -1) {
-                path = path.substring(0, index);
-            }
-            existingPages.add(path);
-        } else if (entry.getResponseCode() == 404) {
-            String path = entry.getPath();
-            int index = path.indexOf("?");
-
-            if (index != -1) {
-                path = path.substring(0, index);
-            }
-            unexistingPages.add(path);
+        if (entry.getResponseCode() == 404) {
+            unexistingPages.add(entry.getPath());
         }
 
         LocalDateTime time = entry.getTime();
@@ -74,6 +71,21 @@ public class Statistics {
         } else {
             browserStatistics.put(browser, browserStatistics.get(browser) + 1);
         }
+
+        // проверка на ботов
+        boolean isBot = entry.getUserAgent().isBot();
+
+        if (!isBot) {
+            realVisits++;
+            userIps.add(entry.getIp());
+        }
+
+        // ошибочные запросы
+        int code = entry.getResponseCode();
+
+        if (code >= 400 && code < 600) {
+            errorRequests++;
+        }
     }
 
     public double getTrafficRate() {
@@ -91,45 +103,63 @@ public class Statistics {
         return (double) totalTraffic / hours;
     }
 
-    public Set<String> getListOfExistingPages(){
+    public Set<String> getListOfExistingPages() {
         return existingPages;
     }
 
-    public Set<String> getListOfUnexistingPages(){
+    public Set<String> getListOfUnexistingPages() {
         return unexistingPages;
     }
 
     public Map<String, Double> getOsStatistics() {
         HashMap<String, Double> result = new HashMap<>();
 
-        int total = 0;
+        int total = osStatistics.values()
+                .stream()
+                .mapToInt(Integer::intValue)
+                .sum();
 
-        for (int count : osStatistics.values()) {
-            total += count;
-        }
-
-        for (String os : osStatistics.keySet()) {
-            int count = osStatistics.get(os);
-            double share = (double) count / total;
-            result.put(os, share);
-        }
-        return result;
+        return osStatistics.entrySet()
+                .stream()
+                .collect(Collectors.toMap(Map.Entry::getKey,
+                        e -> (double) e.getValue() / total));
     }
 
     public Map<String, Double> getBrowserStatistics() {
         HashMap<String, Double> result = new HashMap<>();
 
-        int total = 0;
+        int total = browserStatistics.values()
+                .stream()
+                .mapToInt(Integer::intValue)
+                .sum();
 
-        for (int count : browserStatistics.values()) {
-            total += count;
-        }
+        return browserStatistics.entrySet()
+                .stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, e -> (double) e.getValue() / total));
+    }
 
-        for (String browser : browserStatistics.keySet()) {
-            int count = browserStatistics.get(browser);
-            double share = (double) count / total;
-            result.put(browser, share);
+    private double getHoursPeriod() {
+        if (minTime == null || maxTime == null) {
+            return 1;
         }
-        return result;
+        long seconds = java.time.Duration.between(minTime, maxTime).getSeconds();
+        double hours = seconds / 3600.0;
+
+        return hours == 0 ? 1 : hours;
+    }
+
+    public double getAverageVisitsPerHour() {
+        return realVisits / getHoursPeriod();
+    }
+
+    public double getAverageErrorsPerHour() {
+        return errorRequests / getHoursPeriod();
+    }
+
+    public double getAverageVisitsPerUser() {
+        if (userIps.isEmpty()) {
+            return 0;
+        }
+        return (double) realVisits / userIps.size();
     }
 }
